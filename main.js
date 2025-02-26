@@ -10,62 +10,62 @@
 
   const myIcon1 = L.icon({
     iconUrl: 'bus1.png',
-    iconSize: [15, 39],
-    iconAnchor: [7, 39]
+    iconSize: [16, 40],
+    iconAnchor: [8, 20]
   });
 
   const myIcon2 = L.icon({
     iconUrl: 'bus2.png',
-    iconSize: [15, 39],
-    iconAnchor: [7, 39]
+    iconSize: [16, 40],
+    iconAnchor: [8, 20]
   });
 
   const myIcon3 = L.icon({
     iconUrl: 'bus3.png',
-    iconSize: [15, 39],
-    iconAnchor: [7, 39]
+    iconSize: [16, 40],
+    iconAnchor: [8, 20]
   });
 
   const myIcon4 = L.icon({
     iconUrl: 'bus4.png',
-    iconSize: [15, 39],
-    iconAnchor: [7, 39]
+    iconSize: [16, 40],
+    iconAnchor: [8, 20]
   });
 
   const myIcon5 = L.icon({
     iconUrl: 'bus5.png',
-    iconSize: [15, 39],
-    iconAnchor: [7, 39]
+    iconSize: [16, 40],
+    iconAnchor: [8, 20]
   });
 
   const myIcon6 = L.icon({
     iconUrl: 'bus6.png',
-    iconSize: [15, 39],
-    iconAnchor: [7, 39]
+    iconSize: [16, 40],
+    iconAnchor: [8, 20]
   });
 
   const myIcon7 = L.icon({
     iconUrl: 'bus7.png',
-    iconSize: [15, 39],
-    iconAnchor: [7, 39]
+    iconSize: [16, 40],
+    iconAnchor: [8, 20]
   });
 
   const myIcon8 = L.icon({
     iconUrl: 'bus8.png',
-    iconSize: [15, 39],
-    iconAnchor: [7, 39]
+    iconSize: [16, 40],
+    iconAnchor: [8, 20]
   });
 
   const myIcon9 = L.icon({
     iconUrl: 'bus9.png',
-    iconSize: [15, 39],
-    iconAnchor: [7, 39]
+    iconSize: [16, 40],
+    iconAnchor: [8, 20]
   });
 
   const myIcon10 = L.icon({
     iconUrl: 'bus10.png',
-    iconSize: [15, 39],
-    iconAnchor: [7, 39]
+    iconSize: [16, 40],
+    iconAnchor: [8, 20]
   });
 
   const icons = {
@@ -148,7 +148,7 @@
   
           const currentBusIds = filteredFeatures.map(feature => feature.properties.busId);
           Object.keys(busMarkers).map(id => {
-            if (!currentBusIds.includes(id)) {
+            if (currentBusIds.includes(id) == false) {
               map.removeLayer(busMarkers[id]);
               delete busMarkers[id];
             }
@@ -159,8 +159,26 @@
         console.error("Error fetching or processing data:", error);
       });
   }
-  
+  map.on("zoomend", function() {
+    const baseZoom = 15;
+    const currentZoom = map.getZoom();
+    const scaleFactor = currentZoom / baseZoom;
+
+    Object.keys(icons).map(key => {
+       let icon = icons[key];
+       icon.options.iconSize = [16 * scaleFactor, 40 * scaleFactor];
+       icon.options.iconAnchor = [8 * scaleFactor, 20 * scaleFactor];
+       return icon;
+    });
+
+    Object.keys(busMarkers).map(busId => {
+       let marker = busMarkers[busId];
+       marker.setIcon(marker.options.icon);
+       return marker;
+    });
+  });
 
   updateBuses();
   setInterval(updateBuses, 5000);
+  
 })();
