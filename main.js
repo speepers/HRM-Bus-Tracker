@@ -8,78 +8,16 @@
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
 
-  const myIcon1 = L.icon({
-    iconUrl: 'bus1.png',
-    iconSize: [16, 40],
-    iconAnchor: [8, 20]
-  });
+  const icons = {};
+  
+  for (let i = 1; i <= 10; i++) {
+    icons[i] = L.icon({
+      iconUrl: `bus${i}.png`,
+      iconSize: [16, 40],
+      iconAnchor: [8, 20]
+    });
+  }
 
-  const myIcon2 = L.icon({
-    iconUrl: 'bus2.png',
-    iconSize: [16, 40],
-    iconAnchor: [8, 20]
-  });
-
-  const myIcon3 = L.icon({
-    iconUrl: 'bus3.png',
-    iconSize: [16, 40],
-    iconAnchor: [8, 20]
-  });
-
-  const myIcon4 = L.icon({
-    iconUrl: 'bus4.png',
-    iconSize: [16, 40],
-    iconAnchor: [8, 20]
-  });
-
-  const myIcon5 = L.icon({
-    iconUrl: 'bus5.png',
-    iconSize: [16, 40],
-    iconAnchor: [8, 20]
-  });
-
-  const myIcon6 = L.icon({
-    iconUrl: 'bus6.png',
-    iconSize: [16, 40],
-    iconAnchor: [8, 20]
-  });
-
-  const myIcon7 = L.icon({
-    iconUrl: 'bus7.png',
-    iconSize: [16, 40],
-    iconAnchor: [8, 20]
-  });
-
-  const myIcon8 = L.icon({
-    iconUrl: 'bus8.png',
-    iconSize: [16, 40],
-    iconAnchor: [8, 20]
-  });
-
-  const myIcon9 = L.icon({
-    iconUrl: 'bus9.png',
-    iconSize: [16, 40],
-    iconAnchor: [8, 20]
-  });
-
-  const myIcon10 = L.icon({
-    iconUrl: 'bus10.png',
-    iconSize: [16, 40],
-    iconAnchor: [8, 20]
-  });
-
-  const icons = {
-    1: myIcon1,
-    2: myIcon2,
-    3: myIcon3,
-    4: myIcon4,
-    5: myIcon5,
-    6: myIcon6,
-    7: myIcon7,
-    8: myIcon8,
-    9: myIcon9,
-    10: myIcon10,
-  };
 
   let busMarkers = {};
 
@@ -180,5 +118,5 @@
 
   updateBuses();
   setInterval(updateBuses, 5000);
-  
+
 })();
