@@ -7,15 +7,34 @@
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
 
-  // adding the checkboxes to the top right
+  // adding the checkboxes / collapsability to the top right
   const routeControl = L.control({ position: 'topright' });
 
   routeControl.onAdd = function() {
-    const div = L.DomUtil.create('div', 'route-control leaflet-bar');
-    
-    // creates a div containing the checkboxes
-    div.innerHTML =
-     `<form id="routeFilterForm" style="padding: 10px; background-color:white">
+    // create a container div for the control
+    const container = L.DomUtil.create('div', 'route-control leaflet-bar');
+    container.style.position = 'relative';
+
+    // create a toggle button element
+    const toggleButton = document.createElement('button');
+    toggleButton.id = 'toggleButton';
+
+    // initially, the form is visible so show a left arrow (indicating "collapse")
+    toggleButton.innerHTML = "&#9664;"; // left arrow
+    toggleButton.style.position = 'absolute';
+    toggleButton.style.top = '0';
+    toggleButton.style.right = '0';
+    toggleButton.style.padding = '2px 5px';
+    toggleButton.style.background = 'white';
+    toggleButton.style.border = '1px solid #ccc';
+    toggleButton.style.cursor = 'pointer';
+    toggleButton.style.zIndex = '1000';
+
+    // make a content container for the form
+    const content = document.createElement('div');
+    content.id = 'routeFilterContent';
+    content.innerHTML =
+      `<form id="routeFilterForm" style="padding: 10px; background-color:white">
         <input type="button" id="button" onClick="checkAll(true);" value="Check All">
         <input type="button" id="button" onClick="checkAll(false);" value="Clear All"><br>
         <label><input type="checkbox" name="route" value="1" checked> Route 1</label>
@@ -24,7 +43,7 @@
         <label><input type="checkbox" name="route" value="4" checked> Route 4</label><br>
         <label><input type="checkbox" name="route" value="5" checked> Route 5</label>
         <label><input type="checkbox" name="route" value="6" checked> Route 6</label><br>
-        <label><input type="checkbox" name="route" value="7" checked> Route 7</lable>
+        <label><input type="checkbox" name="route" value="7" checked> Route 7</label>
         <label><input type="checkbox" name="route" value="8" checked> Route 8</label><br>
         <label><input type="checkbox" name="route" value="9" checked> Route 9</label>
         <label><input type="checkbox" name="route" value="10" checked> Route 10</label><br>
@@ -64,42 +83,53 @@
         <label><input type="checkbox" name="route" value="91" checked> Route 91</label><br>
         <label><input type="checkbox" name="route" value="93" checked> Route 93</label>
       </form>`;
-    
-    return div;
+
+    // append the toggle button and content to the container
+    container.appendChild(toggleButton);
+    container.appendChild(content);
+
+    // add toggle functionality
+    let isCollapsed = false;
+    toggleButton.addEventListener("click", function() {
+      if (!isCollapsed) {
+        content.style.display = "none";
+        toggleButton.innerHTML = "&#9654;"; // right arrow when collapsed
+        isCollapsed = true;
+      } else {
+        content.style.display = "block";
+        toggleButton.innerHTML = "&#9664;"; // left arrow when expanded
+        isCollapsed = false;
+      }
+    });
+    return container;
   };
 
-  // add it to the map
+  // add it all to the map
   routeControl.addTo(map);
 
-  // return the status of the checked checkboxes as an array called selectedRoutes
+  // initializing the selectedRoutes array - if i dont do this the page is empty until user action lmao
   let selectedRoutes = [...document.querySelectorAll("#routeFilterForm input[name='route']:checked")].map(checkbox => checkbox.value);
 
+  // updating selectedRoutes if any of the checkboxes are modified
   document.getElementById("routeFilterForm").addEventListener("change", function() {
       selectedRoutes = [...document.querySelectorAll("#routeFilterForm input[name='route']:checked")]
           .map(checkbox => checkbox.value);
   });
 
-  // Function to update the selectedRoutes variable based on currently checked boxes.
-  function updateSelectedRoutes() {
-    selectedRoutes = [...document.querySelectorAll("#routeFilterForm input[name='route']:checked")]
-        .map(checkbox => checkbox.value);
-    // Optionally, do something with selectedRoutes here (like re-filtering your data).
-  }
-
-  // Modify checkAll to call updateSelectedRoutes once it has finished toggling checkboxes.
+  // checkall is a function only used as part of the clear / check all buttons in the html 
+  // this takes either true or false as input and is respective to which button you pressed
   window.checkAll = function(checkEm) {
-    const checkboxes = document.getElementsByTagName('input');
+    const checkboxes = document.getElementsByTagName('input'); // make an array with all the elements that are checkboxes
     for (let i = 0; i < checkboxes.length; i++) {
       if (checkboxes[i].type === 'checkbox' && checkboxes[i].name === 'route') {
-        checkboxes[i].checked = checkEm;
+        checkboxes[i].checked = checkEm; // manually set a boolean value to each checkbox based on which button you clicked
       }
     }
-    // Update the selectedRoutes variable after changing the checkboxes.
-    updateSelectedRoutes();
+    selectedRoutes = [...document.querySelectorAll("#routeFilterForm input[name='route']:checked")]
+      .map(checkbox => checkbox.value); // update selectedRoutes at the end, reflecting the users choice
   };
 
-
-  // initialize icon images for all the busses, add them into an array
+  // initialize icon images for all the buses, add them into an array
   const icons = {};
 
   for (let i = 1; i <= 93; i++) {
@@ -150,7 +180,7 @@
             })
           };
   
-          // filtering all the bus routes out so we only keep 1 - 10
+          // filtering all the bus routes out so we only keep 1 - 93
           const filteredFeatures = geojson.features.filter(feature => {
               const routeNumber = parseInt(feature.properties.routeNumber);
               return (routeNumber >= 1 && routeNumber <= 93);
@@ -163,7 +193,6 @@
             const lng = feature.geometry.coordinates[0];
             const bearing = feature.properties.bearing;
             const tripID = feature.properties.tripID;
-
             const routeNumber = parseInt(feature.properties.routeNumber);
 
             for (let i = 1; i <= 93; i++) {
